@@ -136,7 +136,7 @@ export function useOrders() {
     try {
       setLoading(true)
       const data = await apiCall("/commandes")
-      // Mapping pour compatibilité frontend : statut -> status
+      // Mapping pour compatibilité frontend : statut -> status, prixtotal -> total
       const mapped = data.map((order: any) => ({
         ...order,
         status: order.statut || order.status,
@@ -151,7 +151,7 @@ export function useOrders() {
   }
 
   const createOrder = async (order: any) => {
-    // Appel API public (sans authentification)
+    // Envoie l'objet order tel quel, sans transformation
     const response = await fetch(`${API_BASE_URL}/commandes`, {
       method: "POST",
       headers: {
@@ -168,6 +168,7 @@ export function useOrders() {
   }
 
   const updateOrderStatus = async (id: string, status: string) => {
+    // Envoie le champ tel qu'attendu par le backend
     const data = await apiCall(`/commandes/${id}`, {
       method: "PUT",
       body: JSON.stringify({ statut: status }),

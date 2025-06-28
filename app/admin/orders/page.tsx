@@ -47,13 +47,16 @@ export default function OrdersPage() {
               <div className="flex justify-between items-start">
                 <div>
                   <CardTitle>
+                    <span className="font-bold text-blue-700 mr-3">
+                      Table {order.table?.numero || order.tableId}
+                    </span>
                     Commande #{order.id.toString().slice(0, 8)}
                     <span className="ml-3 text-base font-semibold">
                       [Statut : {statusLabels[order.status as keyof typeof statusLabels] || order.status}]
                     </span>
                   </CardTitle>
                   <CardDescription>
-                    Table {order.table?.numero || order.tableId} • {order.customerName ? `Client : ${order.customerName} • ` : ""}{new Date(order.createdAt).toLocaleString()}
+                    {order.customerName ? `Client : ${order.customerName} • ` : ""}{order.dateCommande ? new Date(order.dateCommande).toLocaleString() : "Date inconnue"}
                   </CardDescription>
                 </div>
                 <div className="flex items-center space-x-4">

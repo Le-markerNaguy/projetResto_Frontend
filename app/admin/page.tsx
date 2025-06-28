@@ -4,11 +4,14 @@ import { useOrders, useDishes, useTables } from "@/hooks/use-api"
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card"
 import { LoadingSpinner } from "@/components/ui/loading-spinner"
 import { UtensilsCrossed, ShoppingCart, Table, TrendingUp } from "lucide-react"
+import { useOrderRealtime } from "./_realtime"
 
 export default function AdminDashboard() {
-  const { orders, loading: ordersLoading } = useOrders()
+  const { orders, loading: ordersLoading, fetchOrders } = useOrders()
   const { dishes, loading: dishesLoading } = useDishes()
   const { tables, loading: tablesLoading } = useTables()
+
+  useOrderRealtime(fetchOrders)
 
   if (ordersLoading || dishesLoading || tablesLoading) {
     return <LoadingSpinner />

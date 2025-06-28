@@ -14,11 +14,10 @@ interface OrderSummaryProps {
 export function OrderSummary({
   itemsCount,
   subtotal,
-  tax,
   total,
   customerName,
   onCustomerNameChange,
-}: OrderSummaryProps) {
+}: Omit<OrderSummaryProps, "tax">) {
   return (
     <div className="border-t pt-4 space-y-4">
       {/* Nom client */}
@@ -40,10 +39,6 @@ export function OrderSummary({
         <div className="flex justify-between">
           <span>Sous-total ({itemsCount} articles)</span>
           <span>{subtotal.toFixed(2)} F CFA</span>
-        </div>
-        <div className="flex justify-between">
-          <span>TVA (20%)</span>
-          <span>{tax.toFixed(2)} F CFA</span>
         </div>
         <div className="flex justify-between font-bold text-lg border-t pt-2">
           <span>Total</span>

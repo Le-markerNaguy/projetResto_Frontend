@@ -46,3 +46,4 @@ export interface AuthContextType {
   logout: () => void
   isLoading: boolean
 }
+

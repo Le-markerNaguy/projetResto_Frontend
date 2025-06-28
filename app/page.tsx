@@ -34,6 +34,7 @@ export default function HomePage() {
   const [view, setView] = useState<"grid" | "list">("grid")
   const [expandedOrder, setExpandedOrder] = useState(false)
   const [manualTableNumber, setManualTableNumber] = useState("")
+  const [isCartOpen, setIsCartOpen] = useState(false) // Ajout état pour le panier
 
   // Correction du typage pour éviter les erreurs
   const safeTables: Table[] = Array.isArray(tables) ? tables as Table[] : [];
@@ -53,6 +54,10 @@ export default function HomePage() {
     }
   }, [safeTables])
 
+  // Fonction pour ouvrir/fermer le panier
+  const handleCartOpen = () => setIsCartOpen(true)
+  const handleCartClose = () => setIsCartOpen(false)
+
   const handleSubmitOrder = async () => {
     console.log('handleSubmitOrder called')
     // Utiliser le numéro de table saisi manuellement si présent
@@ -70,8 +75,7 @@ export default function HomePage() {
     setLoading(true)
     try {
       const subtotal = cart.reduce((total, item) => total + item.price * item.quantity, 0)
-      const tax = subtotal * 0.2
-      const total = subtotal + tax
+      const total = subtotal // Total sans TVA
       const API_URL = process.env.NEXT_PUBLIC_API_URL || "http://localhost:4000/api"
       const response = await fetch(`${API_URL}/commandes`, {
         method: "POST",
@@ -117,13 +121,13 @@ export default function HomePage() {
 
   return (
     <div className="min-h-screen bg-gradient-to-br from-orange-50 to-red-50">
-      <MenuHeader cartItemsCount={getItemsCount()} />
+      <MenuHeader cartItemsCount={getItemsCount()} onCartClick={handleCartOpen} />
       {/* Bouton flottant résumé commande (mobile/desktop) */}
-      {cart.length > 0 && !expandedOrder && (
+      {cart.length > 0 && !expandedOrder && !isCartOpen && (
         <button
           className="fixed z-50 bottom-6 right-6 w-20 h-20 bg-white border-4 border-orange-300 shadow-lg rounded-full flex flex-col items-center justify-center transition hover:scale-105 active:scale-95"
           style={{ boxShadow: '0 4px 24px 0 rgba(0,0,0,0.10)' }}
-          onClick={() => setExpandedOrder(true)}
+          onClick={handleCartOpen}
           aria-label="Voir le résumé de la commande"
         >
           <span className="relative flex items-center justify-center">
@@ -134,7 +138,27 @@ export default function HomePage() {
         </button>
       )}
       <div className="container mx-auto px-4 py-8">
-        {expandedOrder ? (
+        {/* Affichage du panier en priorité si ouvert */}
+        {isCartOpen ? (
+          <div className="fixed inset-0 bg-black bg-opacity-40 z-40 flex justify-end">
+            <div className="w-full max-w-md bg-white h-full shadow-lg p-4 overflow-y-auto">
+              <OrderTableExpanded
+                cart={cart}
+                tables={tables}
+                selectedTable={selectedTable}
+                customerName={customerName}
+                loading={loading}
+                onTableChange={setSelectedTable}
+                onCustomerNameChange={setCustomerName}
+                onIncreaseQuantity={addToCart}
+                onDecreaseQuantity={removeFromCart}
+                onRemoveItem={removeItemCompletely}
+                onSubmitOrder={handleSubmitOrder}
+              />
+              <Button onClick={handleCartClose} className="mt-4">Fermer</Button>
+            </div>
+          </div>
+        ) : expandedOrder ? (
           // Vue étendue avec tableau complet
           <div className="space-y-8">
             <div className="flex items-center justify-between">
@@ -182,20 +206,16 @@ export default function HomePage() {
             </div>
           </div>
         ) : (
+          // Vue compacte : menu principal uniquement
           <div className="grid grid-cols-1 lg:grid-cols-4 gap-8">
-            {/* Menu principal */}
             <div className="lg:col-span-3">
-              {/* Filtres et contrôles */}
               <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4 mb-6">
                 <CategoryFilter
                   categories={categories}
                   selectedCategory={selectedCategory}
                   onCategoryChange={setSelectedCategory}
                 />
-                {/* Suppression du ViewToggle */}
               </div>
-
-              {/* Affichage des plats uniquement en grille avec image */}
               <MenuGrid
                 dishes={filteredDishes}
                 cart={cart}
@@ -204,10 +224,13 @@ export default function HomePage() {
                 onDecreaseQuantity={removeFromCart}
               />
             </div>
-            {/* Suppression OrderTable compact */}
           </div>
         )}
       </div>
+      {/* Bouton pour ouvrir le panier */}
+      <Button onClick={handleCartOpen} className="fixed top-4 right-4 z-50">
+        <ShoppingCart className="mr-2" /> Voir le panier
+      </Button>
     </div>
   )
 }

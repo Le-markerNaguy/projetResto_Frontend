@@ -7,9 +7,10 @@ import { UtensilsCrossed, ShoppingCart } from "lucide-react"
 
 interface MenuHeaderProps {
   cartItemsCount: number
+  onCartClick?: () => void
 }
 
-export function MenuHeader({ cartItemsCount }: MenuHeaderProps) {
+export function MenuHeader({ cartItemsCount, onCartClick }: MenuHeaderProps) {
   const [logoClicks, setLogoClicks] = useState(0)
   const [showAdminButton, setShowAdminButton] = useState(false)
   const [adminButtonTimer, setAdminButtonTimer] = useState<NodeJS.Timeout | null>(null)
@@ -85,7 +86,7 @@ export function MenuHeader({ cartItemsCount }: MenuHeaderProps) {
             {/* Indicateur panier mobile */}
             <div className="md:hidden">
               {cartItemsCount > 0 && (
-                <div className="relative">
+                <div className="relative cursor-pointer" onClick={onCartClick}>
                   <ShoppingCart className="h-6 w-6 text-gray-600" />
                   <span className="absolute -top-2 -right-2 bg-red-500 text-white text-xs rounded-full h-5 w-5 flex items-center justify-center">
                     {cartItemsCount}

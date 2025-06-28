@@ -38,8 +38,7 @@ export function OrderTableExpanded({
 }: OrderTableExpandedProps) {
   const itemsCount = cart.reduce((sum, item) => sum + item.quantity, 0)
   const subtotal = cart.reduce((total, item) => total + item.price * item.quantity, 0)
-  const tax = subtotal * 0.2
-  const total = subtotal + tax
+  const total = subtotal
 
   return (
     <div className="space-y-6">
@@ -151,7 +150,6 @@ export function OrderTableExpanded({
             <OrderSummary
               itemsCount={itemsCount}
               subtotal={subtotal}
-              tax={tax}
               total={total}
               customerName={customerName}
               onCustomerNameChange={onCustomerNameChange}

@@ -145,7 +145,6 @@ export function OrderTable({
             <OrderSummary
               itemsCount={itemsCount}
               subtotal={subtotal}
-              tax={tax}
               total={total}
               customerName={customerName}
               onCustomerNameChange={onCustomerNameChange}
