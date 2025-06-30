@@ -326,3 +326,29 @@ export function useWeeklyRevenue() {
 
   return { revenue, loading, fetchWeeklyRevenue }
 }
+
+// Hook pour le revenu journalier de la semaine
+export function useDailyRevenue() {
+  const [dailyRevenue, setDailyRevenue] = useState<{ day: string; revenue: number }[]>([])
+  const [loading, setLoading] = useState(true)
+  const { apiCall } = useApi()
+
+  const fetchDailyRevenue = async () => {
+    try {
+      setLoading(true)
+      const data = await apiCall("/commandes/revenue-daily")
+      setDailyRevenue(data)
+    } catch (error) {
+      setDailyRevenue([])
+      console.error("Erreur lors de la récupération du revenu journalier:", error)
+    } finally {
+      setLoading(false)
+    }
+  }
+
+  useEffect(() => {
+    fetchDailyRevenue()
+  }, [])
+
+  return { dailyRevenue, loading, fetchDailyRevenue }
+}

@@ -1,6 +1,6 @@
 "use client"
 
-import { useOrders, useDishes } from "@/hooks/use-api"
+import { useOrders, useDishes, useDailyRevenue } from "@/hooks/use-api"
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card"
 import { LoadingSpinner } from "@/components/ui/loading-spinner"
 import { Badge } from "@/components/ui/badge"
@@ -9,8 +9,9 @@ import { TrendingUp, TrendingDown, DollarSign, ShoppingCart, Clock } from "lucid
 export default function AnalyticsPage() {
   const { orders, loading: ordersLoading } = useOrders()
   const { dishes, loading: dishesLoading } = useDishes()
+  const { dailyRevenue, loading: dailyRevenueLoading } = useDailyRevenue()
 
-  if (ordersLoading || dishesLoading) {
+  if (ordersLoading || dishesLoading || dailyRevenueLoading) {
     return <LoadingSpinner />
   }
 
@@ -31,17 +32,6 @@ export default function AnalyticsPage() {
       return { ...dish, orderCount }
     })
     .sort((a, b) => b.orderCount - a.orderCount)
-
-  // Revenus par jour (simulation)
-  const dailyRevenue = [
-    { day: "Lun", revenue: 1250 },
-    { day: "Mar", revenue: 1100 },
-    { day: "Mer", revenue: 1400 },
-    { day: "Jeu", revenue: 1300 },
-    { day: "Ven", revenue: 1800 },
-    { day: "Sam", revenue: 2100 },
-    { day: "Dim", revenue: 1900 },
-  ]
 
   const stats = [
     {
@@ -116,22 +106,26 @@ export default function AnalyticsPage() {
             <CardDescription>Évolution des revenus sur 7 jours</CardDescription>
           </CardHeader>
           <CardContent>
-            <div className="space-y-4">
-              {dailyRevenue.map((day) => (
-                <div key={day.day} className="flex items-center justify-between">
-                  <span className="font-medium">{day.day}</span>
-                  <div className="flex items-center space-x-2">
-                    <div className="w-32 bg-gray-200 rounded-full h-2">
-                      <div
-                        className="bg-blue-600 h-2 rounded-full"
-                        style={{ width: `${(day.revenue / 2100) * 100}%` }}
-                      ></div>
+            {dailyRevenueLoading ? (
+              <LoadingSpinner />
+            ) : (
+              <div className="space-y-4">
+                {dailyRevenue.map((day) => (
+                  <div key={day.day} className="flex items-center justify-between">
+                    <span className="font-medium">{day.day}</span>
+                    <div className="flex items-center space-x-2">
+                      <div className="w-32 bg-gray-200 rounded-full h-2">
+                        <div
+                          className="bg-blue-600 h-2 rounded-full"
+                          style={{ width: `${(day.revenue / Math.max(...dailyRevenue.map(d => d.revenue), 1)) * 100}%` }}
+                        ></div>
+                      </div>
+                      <span className="text-sm font-medium">{day.revenue} F CFA</span>
                     </div>
-                    <span className="text-sm font-medium">{day.revenue} F CFA</span>
                   </div>
-                </div>
-              ))}
-            </div>
+                ))}
+              </div>
+            )}
           </CardContent>
         </Card>
 
