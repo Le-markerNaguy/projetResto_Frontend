@@ -1,5 +1,6 @@
 "use client"
 
+import { useEffect } from "react"
 import { useOrders } from "@/hooks/use-api"
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card"
 import { Badge } from "@/components/ui/badge"
@@ -24,6 +25,11 @@ const statusLabels = {
 
 export default function OrdersPage() {
   const { orders, loading, updateOrderStatus } = useOrders()
+
+  // Quand la page commandes est vue, reset le badge
+  useEffect(() => {
+    window.dispatchEvent(new Event("orders:seen"))
+  }, [])
 
   const handleStatusChange = async (orderId: string, newStatus: string) => {
     await updateOrderStatus(orderId, newStatus)

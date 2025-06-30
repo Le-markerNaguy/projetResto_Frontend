@@ -1,15 +1,23 @@
 "use client"
 
 import { useOrders, useDishes, useDailyRevenue } from "@/hooks/use-api"
+import { useOrderRealtime } from "@/app/admin/_realtime"
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card"
 import { LoadingSpinner } from "@/components/ui/loading-spinner"
 import { Badge } from "@/components/ui/badge"
 import { TrendingUp, TrendingDown, DollarSign, ShoppingCart, Clock } from "lucide-react"
 
 export default function AnalyticsPage() {
-  const { orders, loading: ordersLoading } = useOrders()
-  const { dishes, loading: dishesLoading } = useDishes()
-  const { dailyRevenue, loading: dailyRevenueLoading } = useDailyRevenue()
+  const { orders, loading: ordersLoading, fetchOrders } = useOrders()
+  const { dishes, loading: dishesLoading, fetchDishes } = useDishes()
+  const { dailyRevenue, loading: dailyRevenueLoading, fetchDailyRevenue } = useDailyRevenue()
+
+  // Rafraîchit tout en temps réel
+  useOrderRealtime(() => {
+    fetchOrders()
+    fetchDishes()
+    fetchDailyRevenue()
+  })
 
   if (ordersLoading || dishesLoading || dailyRevenueLoading) {
     return <LoadingSpinner />
