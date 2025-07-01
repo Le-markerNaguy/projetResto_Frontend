@@ -8,6 +8,24 @@ import { useOrderRealtime } from "@/app/admin/_realtime"
 import { useOrderAlert } from "@/contexts/order-alert-context"
 import { useAdminSettings } from "@/contexts/admin-settings-context"
 
+function ChefHatIcon({ className = "", ...props }: React.SVGProps<SVGSVGElement>) {
+  return (
+    <svg
+      viewBox="0 0 24 24"
+      fill="none"
+      stroke="currentColor"
+      strokeWidth={1.5}
+      strokeLinecap="round"
+      strokeLinejoin="round"
+      className={className}
+      {...props}
+    >
+      <path d="M4 10a4 4 0 0 1 8 0 4 4 0 0 1 8 0c0 2.21-1.79 4-4 4H8c-2.21 0-4-1.79-4-4z" fill="#2563eb" stroke="#2563eb" />
+      <rect x="7" y="14" width="10" height="5" rx="2.5" fill="#2563eb" stroke="#2563eb" />
+    </svg>
+  )
+}
+
 export function Navbar() {
   const { admin, logout } = useAuth()
   const { settings, updateSettings } = useAdminSettings();
@@ -36,7 +54,7 @@ export function Navbar() {
   }, [setHasNewOrder])
 
   return (
-    <nav className={`bg-white dark:bg-gray-950 shadow-sm border-b transition-colors`}>
+    <nav className="bg-white dark:bg-gray-950 shadow-sm border-b transition-colors">
       <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
         <div className="flex justify-between h-16">
           <div className="flex items-center">
@@ -45,16 +63,16 @@ export function Navbar() {
               {/* Icône notification forte */}
               {hasNewOrder && (
                 <span className="ml-2 relative">
-                  <Bell className="h-6 w-6 text-red-600 animate-pulse drop-shadow-lg" aria-label="Nouvelle commande" />
+                  <ChefHatIcon className="h-7 w-7 text-blue-600 animate-pulse drop-shadow-lg" aria-label="Nouvelle commande" />
                   <span className="absolute -top-1 -right-1 flex h-3 w-3">
-                    <span className="animate-ping absolute inline-flex h-full w-full rounded-full bg-red-400 opacity-75"></span>
-                    <span className="relative inline-flex rounded-full h-3 w-3 bg-red-600"></span>
+                    <span className="animate-ping absolute inline-flex h-full w-full rounded-full bg-blue-400 opacity-75"></span>
+                    <span className="relative inline-flex rounded-full h-3 w-3 bg-blue-600"></span>
                   </span>
                 </span>
               )}
               {/* Badge numérique classique (optionnel) */}
               {newOrderCount > 0 && (
-                <span className="ml-2 inline-flex items-center px-2 py-0.5 rounded-full text-xs font-bold bg-red-600 text-white animate-bounce">
+                <span className="ml-2 inline-flex items-center px-2 py-0.5 rounded-full text-xs font-bold bg-blue-600 text-white animate-bounce">
                   {newOrderCount}
                 </span>
               )}
