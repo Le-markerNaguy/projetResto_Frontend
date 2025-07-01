@@ -7,6 +7,8 @@ import { useEffect } from "react"
 import { Navbar } from "@/components/layout/navbar"
 import { Sidebar } from "@/components/layout/sidebar"
 import { LoadingSpinner } from "@/components/ui/loading-spinner"
+import { OrderAlertProvider } from "@/contexts/order-alert-context"
+import { AdminSettingsProvider, useAdminSettings } from "@/contexts/admin-settings-context"
 
 export default function AdminLayout({
   children,
@@ -31,7 +33,18 @@ export default function AdminLayout({
   }
 
   return (
-    <div className="min-h-screen bg-gray-50">
+    <AdminSettingsProvider>
+      <OrderAlertProvider>
+        <AdminLayoutContent>{children}</AdminLayoutContent>
+      </OrderAlertProvider>
+    </AdminSettingsProvider>
+  )
+}
+
+function AdminLayoutContent({ children }: { children: React.ReactNode }) {
+  const { settings } = useAdminSettings()
+  return (
+    <div className={`min-h-screen ${settings.theme === "dark" ? "dark bg-gray-900" : "bg-gray-50"}`}>
       <Navbar />
       <div className="flex">
         <Sidebar />

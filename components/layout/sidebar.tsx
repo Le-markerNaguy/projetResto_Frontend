@@ -16,7 +16,10 @@ import {
   Settings,
   Menu,
   X,
+  Sun,
+  Moon,
 } from "lucide-react"
+import { useAdminSettings } from "@/contexts/admin-settings-context"
 
 const navigation = [
   { name: "Dashboard", href: "/admin", icon: LayoutDashboard },
@@ -26,12 +29,12 @@ const navigation = [
   { name: "Admins", href: "/admin/admins", icon: Users },
   { name: "Analytics", href: "/admin/analytics", icon: TrendingUp },
   { name: "Profil", href: "/admin/profile", icon: User },
-  { name: "Paramètres", href: "/admin/settings", icon: Settings },
 ]
 
 export function Sidebar() {
   const pathname = usePathname()
   const [isMobileMenuOpen, setIsMobileMenuOpen] = useState(false)
+  const { settings, updateSettings } = useAdminSettings()
 
   return (
     <>
@@ -86,6 +89,34 @@ export function Sidebar() {
               )
             })}
           </nav>
+          {/* Paramètres rapides admin */}
+          <div className="mt-8 px-2 space-y-4 border-t pt-4">
+            <div className="flex items-center justify-between">
+              <span className="text-xs text-gray-500">Thème</span>
+              <Button
+                variant="ghost"
+                size="icon"
+                aria-label="Changer le thème"
+                onClick={() => updateSettings({ theme: settings.theme === "dark" ? "light" : "dark" })}
+                className="text-gray-700 dark:text-gray-200 hover:bg-gray-100 dark:hover:bg-gray-800"
+              >
+                {settings.theme === "dark" ? <Sun className="h-5 w-5" /> : <Moon className="h-5 w-5" />}
+              </Button>
+            </div>
+            <div>
+              <label htmlFor="notif-volume" className="block text-xs text-gray-500 mb-1">Volume notifications</label>
+              <input
+                id="notif-volume"
+                type="range"
+                min={0}
+                max={1}
+                step={0.01}
+                value={settings.notificationVolume}
+                onChange={e => updateSettings({ notificationVolume: Number(e.target.value) })}
+                className="w-full accent-blue-500"
+              />
+            </div>
+          </div>
         </div>
       </div>
     </>
