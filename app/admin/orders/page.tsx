@@ -10,7 +10,7 @@ import { io } from "socket.io-client"
 
 const notificationSoundUrl = "/audio/MÉLODIE K - XYLOPHONE COURT (HOROFRANCE)  SONNERIE ÉCOLECOLLÈGELYCÉEEREACFA.mp3"; // Place ce fichier dans public/audio/
 const socket = io("https://express-projetresto.onrender.com", {
-  transports: ["websocket"],
+  transports: ["websocket", "polling"],
   withCredentials: true
 });
 
