@@ -68,7 +68,7 @@ export function MenuHeader({ cartItemsCount, onCartClick }: MenuHeaderProps) {
               <UtensilsCrossed className="h-6 w-6 text-white" />
             </div>
             <div>
-              <h1 className="text-xl md:text-2xl font-bold text-gray-900">RestOpti</h1>
+              <h1 className="text-xl md:text-2xl font-bold text-gray-900">RestauOpti</h1>
               <p className="text-sm text-gray-500 hidden sm:block">Délicieux plats </p>
             </div>
           </div>

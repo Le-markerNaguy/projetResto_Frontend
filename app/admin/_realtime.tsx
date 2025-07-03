@@ -14,7 +14,7 @@ export function useOrderRealtime(
   useEffect(() => {
     const socket = socketIOClient(
       process.env.NEXT_PUBLIC_API_URL?.replace("/api", "") || "http://localhost:4000",
-      { transports: ["websocket"] }
+      { transports: ["polling"] }
     );
     socket.on("new-order", (order) => {
       // Notification sonore
