@@ -15,8 +15,7 @@ interface TableFormProps {
 
 export function TableForm({ onSubmit, onCancel }: TableFormProps) {
   const [formData, setFormData] = useState({
-    number: 0,
-    capacity: 2,
+    number: 0
   })
   const [loading, setLoading] = useState(false)
 
@@ -42,18 +41,6 @@ export function TableForm({ onSubmit, onCancel }: TableFormProps) {
           required
         />
       </div>
-
-      <div>
-        <Label htmlFor="capacity">Capacité</Label>
-        <Input
-          id="capacity"
-          type="number"
-          value={formData.capacity}
-          onChange={(e) => setFormData({ ...formData, capacity: Number.parseInt(e.target.value) })}
-          required
-        />
-      </div>
-
       <div className="flex space-x-2">
         <Button type="submit" disabled={loading}>
           {loading ? "Création..." : "Créer"}

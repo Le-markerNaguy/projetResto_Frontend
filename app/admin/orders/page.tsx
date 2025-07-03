@@ -1,11 +1,18 @@
 "use client"
 
-import { useEffect } from "react"
+import { useEffect, useState } from "react"
 import { useOrders } from "@/hooks/use-api"
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card"
 import { Badge } from "@/components/ui/badge"
 import { LoadingSpinner } from "@/components/ui/loading-spinner"
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select"
+import { io } from "socket.io-client"
+
+const notificationSoundUrl = "/audio/MÉLODIE K - XYLOPHONE COURT (HOROFRANCE)  SONNERIE ÉCOLECOLLÈGELYCÉEEREACFA.mp3"; // Place ce fichier dans public/audio/
+const socket = io("https://express-projetresto.onrender.com", {
+  transports: ["websocket"],
+  withCredentials: true
+});
 
 const statusColors = {
   pending: "bg-yellow-100 text-yellow-800",
@@ -34,11 +41,26 @@ function groupOrdersByDay(orders: any[]) {
 
 export default function OrdersPage() {
   const { orders, loading, updateOrderStatus } = useOrders()
+  const [highlightedOrders, setHighlightedOrders] = useState<string[]>([]);
 
   // Quand la page commandes est vue, reset le badge
   useEffect(() => {
     window.dispatchEvent(new Event("orders:seen"))
   }, [])
+
+  useEffect(() => {
+    socket.on("new-order", (order) => {
+      if (order?.token) {
+        setHighlightedOrders((prev) => [...prev, order.token]);
+        setTimeout(() => {
+          setHighlightedOrders((prev) => prev.filter(t => t !== order.token));
+        }, 10000);
+      }
+    });
+    return () => {
+      socket.off("new-order");
+    };
+  }, []);
 
   const handleStatusChange = async (orderId: string, newStatus: string) => {
     await updateOrderStatus(orderId, newStatus)
@@ -73,6 +95,12 @@ export default function OrdersPage() {
                           Table {order.table?.numero || order.tableId}
                         </span>
                         <span className="text-gray-700">Commande n°{order.numeroDuJour || order.id}</span>
+                        {/* Icône temporaire de signalement */}
+                        {highlightedOrders.includes(order.token) && (
+                          <span className="ml-2 text-yellow-500 animate-bounce" title="Nouvelle commande">
+                            🔔
+                          </span>
+                        )}
                         <span className="ml-3 text-base font-semibold">
                           [Statut : {statusLabels[order.status as keyof typeof statusLabels] || order.status}]
                         </span>

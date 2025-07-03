@@ -86,10 +86,6 @@ export default function TablesPage() {
               <div className="flex justify-between items-start">
                 <div>
                   <CardTitle className="text-lg">Table {table.number}</CardTitle>
-                  <CardDescription className="flex items-center">
-                    <Users className="h-4 w-4 mr-1" />
-                    {table.capacity} personnes
-                  </CardDescription>
                 </div>
                 <Badge className={statusColors[table.status as keyof typeof statusColors]}>
                   {statusLabels[table.status as keyof typeof statusLabels]}
@@ -105,7 +101,6 @@ export default function TablesPage() {
                 <div className="w-16 h-16 bg-gray-100 rounded-full flex items-center justify-center mx-auto mb-2">
                   <span className="text-2xl font-bold text-gray-600">{table.number}</span>
                 </div>
-                <p className="text-sm text-gray-500">Capacité: {table.capacity} personnes</p>
                 {/* Boutons admin */}
                 <div className="flex justify-center gap-2 mt-4">
                   <Button size="icon" variant="destructive" onClick={() => handleDelete(table.id)} disabled={deletingId === table.id} title="Supprimer la table">
