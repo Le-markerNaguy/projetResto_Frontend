@@ -2,7 +2,7 @@
 
 // Composant utilitaire pour les appels API des tables
 export class TableAPI {
-  private static baseUrl = `${process.env.NEXT_PUBLIC_API_URL || "http://localhost:4000/api"}/tables`
+  private static baseUrl = `https://express-projetresto.onrender.com/api/tables`
 
   static async getAll() {
     const response = await fetch(this.baseUrl)

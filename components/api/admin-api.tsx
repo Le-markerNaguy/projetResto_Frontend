@@ -2,7 +2,7 @@
 
 // Composant utilitaire pour les appels API des admins
 export class AdminAPI {
-  private static baseUrl = `${process.env.NEXT_PUBLIC_API_URL || "http://localhost:4000/api"}/admin`
+  private static baseUrl = `https://express-projetresto.onrender.com/api/admin`
 
   static async login(email: string, password: string) {
     const response = await fetch(`${this.baseUrl}/login`, {

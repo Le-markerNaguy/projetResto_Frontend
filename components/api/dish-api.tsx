@@ -2,7 +2,7 @@
 
 // Composant utilitaire pour les appels API des plats
 export class DishAPI {
-  private static baseUrl = `${process.env.NEXT_PUBLIC_API_URL || "http://localhost:4000/api"}/plats`
+  private static baseUrl = `https://express-projetresto.onrender.com/api/plats`
 
   static async getAll() {
     const response = await fetch(this.baseUrl)

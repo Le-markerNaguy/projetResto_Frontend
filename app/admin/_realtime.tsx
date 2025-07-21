@@ -13,7 +13,7 @@ export function useOrderRealtime(
 
   useEffect(() => {
     const socket = socketIOClient(
-      process.env.NEXT_PUBLIC_API_URL?.replace("/api", "") || "http://localhost:4000",
+      "https://express-projetresto.onrender.com",
       { transports: ["polling"] }
     );
     socket.on("new-order", (order) => {

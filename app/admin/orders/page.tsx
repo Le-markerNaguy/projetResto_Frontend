@@ -6,7 +6,13 @@ import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/com
 import { Badge } from "@/components/ui/badge"
 import { LoadingSpinner } from "@/components/ui/loading-spinner"
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select"
+import { Button } from "@/components/ui/button"
+import { RefreshCw } from "lucide-react"
 import { io } from "socket.io-client"
+import { useAutoRefresh } from "@/hooks/use-auto-refresh"
+import { AutoRefreshNotification } from "@/components/ui/auto-refresh-notification"
+import { AutoRefreshStatus } from "@/components/ui/auto-refresh-status"
+import { CustomerNameBadge } from "@/components/ui/customer-name-badge"
 
 const notificationSoundUrl = "/audio/MÉLODIE K - XYLOPHONE COURT (HOROFRANCE)  SONNERIE ÉCOLECOLLÈGELYCÉEEREACFA.mp3"; // Place ce fichier dans public/audio/
 const socket = io("https://express-projetresto.onrender.com", {
@@ -40,12 +46,39 @@ function groupOrdersByDay(orders: any[]) {
 }
 
 export default function OrdersPage() {
-  const { orders, loading, updateOrderStatus } = useOrders()
+  const { orders, loading, updateOrderStatus, fetchOrders } = useOrders()
   const [highlightedOrders, setHighlightedOrders] = useState<string[]>([]);
+  const [autoRefreshEnabled, setAutoRefreshEnabled] = useState(true)
+  const [lastRefreshTime, setLastRefreshTime] = useState<Date | undefined>()
 
   // Quand la page commandes est vue, reset le badge
   useEffect(() => {
     window.dispatchEvent(new Event("orders:seen"))
+  }, [])
+
+  // Fonction de rafraîchissement des commandes
+  const refreshOrders = async () => {
+    await fetchOrders()
+    setLastRefreshTime(new Date())
+  }
+
+  // Hook de rafraîchissement automatique
+  const { restartInterval, stopInterval, isActive } = useAutoRefresh({
+    interval: 120000, // 2 minutes
+    enabled: autoRefreshEnabled,
+    onRefresh: refreshOrders
+  })
+
+  // Écouter les événements de rafraîchissement automatique
+  useEffect(() => {
+    const handleAutoRefresh = (event: CustomEvent) => {
+      setLastRefreshTime(event.detail.timestamp)
+    }
+
+    window.addEventListener('autoRefresh', handleAutoRefresh as EventListener)
+    return () => {
+      window.removeEventListener('autoRefresh', handleAutoRefresh as EventListener)
+    }
   }, [])
 
   useEffect(() => {
@@ -76,9 +109,45 @@ export default function OrdersPage() {
 
   return (
     <div className="space-y-6">
-      <div>
-        <h1 className="text-3xl font-bold text-gray-900">Gestion des Commandes</h1>
-        <p className="text-gray-600">Suivez et gérez toutes les commandes</p>
+      <AutoRefreshNotification enabled={autoRefreshEnabled} lastRefreshTime={lastRefreshTime} />
+      <div className="flex items-center justify-between">
+        <div>
+          <h1 className="text-3xl font-bold text-gray-900">Gestion des Commandes</h1>
+          <p className="text-gray-600">
+            Suivez et gérez toutes les commandes • 
+            <span className="font-semibold text-blue-600 ml-1">
+              {orders.filter((order: any) => order.status !== "served" && order.status !== "cancelled").length} commandes actives
+            </span>
+          </p>
+          <AutoRefreshStatus enabled={autoRefreshEnabled} lastRefreshTime={lastRefreshTime} />
+        </div>
+        <div className="flex items-center gap-2">
+          <Button
+            variant="outline"
+            size="sm"
+            onClick={refreshOrders}
+            className="flex items-center gap-2"
+          >
+            <RefreshCw className="h-4 w-4" />
+            Rafraîchir
+          </Button>
+          <Button
+            variant={autoRefreshEnabled ? "default" : "outline"}
+            size="sm"
+            onClick={() => {
+              setAutoRefreshEnabled(!autoRefreshEnabled)
+              if (autoRefreshEnabled) {
+                stopInterval()
+              } else {
+                restartInterval()
+              }
+            }}
+            className="flex items-center gap-2"
+          >
+            <div className={`w-2 h-2 rounded-full ${autoRefreshEnabled ? 'bg-green-500' : 'bg-gray-400'}`} />
+            Auto-refresh
+          </Button>
+        </div>
       </div>
 
       <div className="grid gap-6">
@@ -106,10 +175,14 @@ export default function OrdersPage() {
                         </span>
                       </CardTitle>
                       <CardDescription>
-                        {order.customerName ? `Client : ${order.customerName} • ` : ""}{order.dateCommande ? new Date(order.dateCommande).toLocaleString() : "Date inconnue"}
+                        {order.nomClient ? `Client : ${order.nomClient} • ` : ""}{order.dateCommande ? new Date(order.dateCommande).toLocaleString() : "Date inconnue"}
+                        {autoRefreshEnabled && (
+                          <span className="ml-1 text-green-600">• Auto-refresh actif</span>
+                        )}
                       </CardDescription>
                     </div>
                     <div className="flex items-center space-x-4">
+                      <CustomerNameBadge nomClient={order.nomClient} />
                       <Badge className={statusColors[order.status as keyof typeof statusColors]}>
                         {statusLabels[order.status as keyof typeof statusLabels] || order.status}
                       </Badge>

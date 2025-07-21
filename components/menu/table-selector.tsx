@@ -12,7 +12,8 @@ interface TableSelectorProps {
 }
 
 export function TableSelector({ tables, selectedTable, onTableChange, disabled = false }: TableSelectorProps) {
-  const availableTables = tables.filter((table) => table.status === "available")
+  // Afficher toutes les tables sans filtrage pour l'instant
+  const availableTables = tables || []
 
   return (
     <div>
@@ -24,11 +25,17 @@ export function TableSelector({ tables, selectedTable, onTableChange, disabled =
           <SelectValue placeholder="Sélectionner une table" />
         </SelectTrigger>
         <SelectContent>
-          {tables.map((table) => (
-            <SelectItem key={table.id} value={table.id.toString()}>
-              Table {table.numero}
+          {availableTables.length > 0 ? (
+            availableTables.map((table) => (
+              <SelectItem key={table.id} value={table.id.toString()}>
+                Table {table.numero || table.number}
+              </SelectItem>
+            ))
+          ) : (
+            <SelectItem value="" disabled>
+              Aucune table disponible
             </SelectItem>
-          ))}
+          )}
         </SelectContent>
       </Select>
     </div>

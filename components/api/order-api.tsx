@@ -2,7 +2,7 @@
 
 // Composant utilitaire pour les appels API des commandes
 export class OrderAPI {
-  private static baseUrl = `${process.env.NEXT_PUBLIC_API_URL || "http://localhost:4000/api"}/commandes`
+  private static baseUrl = `https://express-projetresto.onrender.com/api/commandes`
 
   static async getAll(token: string) {
     const response = await fetch(this.baseUrl, {

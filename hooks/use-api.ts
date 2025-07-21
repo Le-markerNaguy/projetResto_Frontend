@@ -3,7 +3,7 @@
 import { useState, useEffect } from "react"
 import { useAuth } from "@/contexts/auth-context"
 
-const API_BASE_URL = (process.env.NEXT_PUBLIC_API_URL || "http://localhost:4000/api").replace(/\/$/, "")
+const API_BASE_URL = "https://express-projetresto.onrender.com/api"
 
 export function useApi() {
   const { token } = useAuth()
@@ -13,7 +13,7 @@ export function useApi() {
     const cleanEndpoint = endpoint.startsWith("/") ? endpoint : `/${endpoint}`
     const url = `${API_BASE_URL}${cleanEndpoint}`
     // Debug : log l'URL appelée
-    // console.log("API CALL URL:", url)
+    // console.log("🌐 API CALL URL:", url)
     const headers = {
       "Content-Type": "application/json",
       ...(token && { Authorization: `Bearer ${token}` }),
@@ -141,6 +141,7 @@ export function useOrders() {
         ...order,
         status: order.statut || order.status,
         total: order.prixtotal || order.total,
+        nomClient: order.nomClient || order.customerName, // Mapping du nom du client
       }))
       setOrders(mapped)
     } catch (error) {

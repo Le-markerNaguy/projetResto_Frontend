@@ -3,15 +3,51 @@
 import { useOrders, useDishes, useTables } from "@/hooks/use-api"
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card"
 import { LoadingSpinner } from "@/components/ui/loading-spinner"
-import { UtensilsCrossed, ShoppingCart, Table, TrendingUp } from "lucide-react"
+import { UtensilsCrossed, ShoppingCart, Table, TrendingUp, RefreshCw } from "lucide-react"
 import { useOrderRealtime } from "./_realtime"
+import { useAutoRefresh } from "@/hooks/use-auto-refresh"
+import { Button } from "@/components/ui/button"
+import { useState, useEffect } from "react"
+import { AutoRefreshNotification } from "@/components/ui/auto-refresh-notification"
+import { CustomerNameBadge } from "@/components/ui/customer-name-badge"
 
 export default function AdminDashboard() {
   const { orders, loading: ordersLoading, fetchOrders } = useOrders()
-  const { dishes, loading: dishesLoading } = useDishes()
-  const { tables, loading: tablesLoading } = useTables()
+  const { dishes, loading: dishesLoading, fetchDishes } = useDishes()
+  const { tables, loading: tablesLoading, fetchTables } = useTables()
+  const [autoRefreshEnabled, setAutoRefreshEnabled] = useState(true)
+  const [lastRefreshTime, setLastRefreshTime] = useState<Date | undefined>()
 
   useOrderRealtime(fetchOrders)
+
+  // Fonction de rafraîchissement de toutes les données
+  const refreshAllData = async () => {
+    await Promise.all([
+      fetchOrders(),
+      fetchDishes(),
+      fetchTables()
+    ])
+    setLastRefreshTime(new Date())
+  }
+
+  // Hook de rafraîchissement automatique
+  const { restartInterval, stopInterval, isActive } = useAutoRefresh({
+    interval: 120000, // 2 minutes
+    enabled: autoRefreshEnabled,
+    onRefresh: refreshAllData
+  })
+
+  // Écouter les événements de rafraîchissement automatique
+  useEffect(() => {
+    const handleAutoRefresh = (event: CustomEvent) => {
+      setLastRefreshTime(event.detail.timestamp)
+    }
+
+    window.addEventListener('autoRefresh', handleAutoRefresh as EventListener)
+    return () => {
+      window.removeEventListener('autoRefresh', handleAutoRefresh as EventListener)
+    }
+  }, [])
 
   if (ordersLoading || dishesLoading || tablesLoading) {
     return <LoadingSpinner />
@@ -60,9 +96,39 @@ export default function AdminDashboard() {
 
   return (
     <div className="space-y-6">
-      <div>
-        <h1 className="text-3xl font-bold text-gray-900">Dashboard</h1>
-        <p className="text-gray-600">Vue d'ensemble de votre restaurant</p>
+      <AutoRefreshNotification enabled={autoRefreshEnabled} lastRefreshTime={lastRefreshTime} />
+      <div className="flex items-center justify-between">
+        <div>
+          <h1 className="text-3xl font-bold text-gray-900">Dashboard</h1>
+          <p className="text-gray-600">Vue d'ensemble de votre restaurant</p>
+        </div>
+        <div className="flex items-center gap-2">
+          <Button
+            variant="outline"
+            size="sm"
+            onClick={refreshAllData}
+            className="flex items-center gap-2"
+          >
+            <RefreshCw className="h-4 w-4" />
+            Rafraîchir
+          </Button>
+          <Button
+            variant={autoRefreshEnabled ? "default" : "outline"}
+            size="sm"
+            onClick={() => {
+              setAutoRefreshEnabled(!autoRefreshEnabled)
+              if (autoRefreshEnabled) {
+                stopInterval()
+              } else {
+                restartInterval()
+              }
+            }}
+            className="flex items-center gap-2"
+          >
+            <div className={`w-2 h-2 rounded-full ${autoRefreshEnabled ? 'bg-green-500' : 'bg-gray-400'}`} />
+            Auto-refresh
+          </Button>
+        </div>
       </div>
 
       <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6">
@@ -74,7 +140,12 @@ export default function AdminDashboard() {
             </CardHeader>
             <CardContent>
               <div className="text-2xl font-bold">{stat.value}</div>
-              <p className="text-xs text-muted-foreground">{stat.description}</p>
+              <p className="text-xs text-muted-foreground">
+                {stat.description}
+                {autoRefreshEnabled && (
+                  <span className="ml-1 text-green-600">• Auto-refresh actif</span>
+                )}
+              </p>
             </CardContent>
           </Card>
         ))}
@@ -94,6 +165,9 @@ export default function AdminDashboard() {
                     <p className="font-medium">Commande #{order.id.toString().slice(0, 8)}</p>
                     <p className="text-sm text-gray-500">
                       Table {order.tableId} • {order.status}
+                      {order.nomClient && (
+                        <span className="ml-2 text-blue-600">• {order.nomClient}</span>
+                      )}
                     </p>
                   </div>
                   <div className="text-right">

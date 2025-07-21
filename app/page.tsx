@@ -59,7 +59,6 @@ export default function HomePage() {
   const handleCartClose = () => setIsCartOpen(false)
 
   const handleSubmitOrder = async () => {
-    console.log('handleSubmitOrder called')
     // Utiliser le numéro de table saisi manuellement si présent
     let tableIdToUse = selectedTable
     if (manualTableNumber && !qrTableDetected) {
@@ -76,21 +75,24 @@ export default function HomePage() {
     try {
       const subtotal = cart.reduce((total, item) => total + item.price * item.quantity, 0)
       const total = subtotal // Total sans TVA
-      const API_URL = process.env.NEXT_PUBLIC_API_URL || "http://localhost:4000/api"
+      const API_URL = "https://express-projetresto.onrender.com/api"
+      
+      const orderData = {
+        tableId: Number(tableIdToUse),
+        plats: cart.map(item => ({
+          id: Number(item.dishId),
+          quantite: item.quantity
+        })),
+        total: total,
+        nomClient: customerName || undefined, // Envoi du nom du client au backend
+      }
+      
       const response = await fetch(`${API_URL}/commandes`, {
         method: "POST",
         headers: {
           "Content-Type": "application/json",
         },
-        body: JSON.stringify({
-          tableId: Number(tableIdToUse),
-          plats: cart.map(item => ({
-            id: Number(item.dishId),
-            quantite: item.quantity
-          })),
-          total: total,
-          customerName: customerName || undefined,
-        }),
+        body: JSON.stringify(orderData),
       })
       if (!response.ok) throw new Error("Erreur lors de la commande")
       alert("Commande passée avec succès !")

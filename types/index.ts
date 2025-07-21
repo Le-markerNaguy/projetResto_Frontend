@@ -1,8 +1,9 @@
 export interface Admin {
   id: string
   email: string
-  name: string
-  createdAt: string
+  nom: string
+  role: string
+  dateCreation: string
 }
 
 export interface Dish {
